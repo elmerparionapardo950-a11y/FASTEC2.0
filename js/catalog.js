@@ -1,6 +1,11 @@
 fastecReady(function(){
   const data = getSiteData();
-  const products = (data.products || []).filter(p => p.active !== false);
+  /* Categorías que se muestran como una sola (los datos de la base no se tocan; ver supabase/unir-almacenamiento.sql) */
+  const GROUP = 'ALMACENAMIENTO Y MEMORIA';
+  const ALIAS = {'discos duros': GROUP, 'memoria ram': GROUP, 'memorias y almacenamiento': GROUP};
+  const plain = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
+  const products = (data.products || []).filter(p => p.active !== false)
+    .map(p => ALIAS[plain(p.category)] ? Object.assign({}, p, {category: GROUP}) : p);
   const esc = fastecEsc;
   const digits = String((data.company || {}).phone || '').replace(/\D/g, '');
   const WHATSAPP_NUMBER = digits || '51963925684';
@@ -24,7 +29,7 @@ fastecReady(function(){
   if(root){
     const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
     /* Orden de categorías: primero cámaras/DVR (CCTV), luego teclados y mouse (accesorios), el resto A–Z */
-    const CAT_FIRST = ['CCTV ANALÓGICO', 'CCTV IP / WIFI', 'DISCOS DUROS', 'MEMORIA RAM', 'REDES'];
+    const CAT_FIRST = ['CCTV ANALÓGICO', 'CCTV IP / WIFI', GROUP, 'REDES'];
     const catRank = c => { const i = CAT_FIRST.indexOf(c); return i < 0 ? CAT_FIRST.length : i; };
     const cats = [...new Set(products.map(p => p.category))].sort((a, b) => catRank(a) - catRank(b) || a.localeCompare(b, 'es'));
     /* Orden de productos: cámaras → DVR/NVR → teclados → mouse → lo demás */
@@ -82,7 +87,7 @@ fastecReady(function(){
       return w.charAt(0).toUpperCase() + w.slice(1);
     };
     const ICONS = [
-      [/cctv.*anal/, '📹'], [/cctv|wifi|camara/, '📡'], [/audio|parlante/, '🔊'], [/electric.*ferre|ferre/, '🔧'],
+      [/almacen/, '💾'], [/cctv.*anal/, '📹'], [/cctv|wifi|camara/, '📡'], [/audio|parlante/, '🔊'], [/electric.*ferre|ferre/, '🔧'],
       [/electric/, '🔌'], [/splitter|adaptador.*split/, '🔀'], [/cargador/, '🔋'], [/cable|adaptador/, '🔗'],
       [/red/, '🌐'], [/disco/, '🗄️'], [/ram/, '🧩'], [/memoria|almacen/, '💾'], [/manten|repar/, '🛠️'],
       [/asesor|soporte/, '💬'], [/instala/, '⚙️'], [/accesorio/, '🎧']

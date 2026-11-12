@@ -26,6 +26,39 @@
     try{ sessionStorage.removeItem('fastec_session'); localStorage.removeItem('fastec_session'); }catch(e){}
   };
 
+  /* Token de acceso vigente. Si hay que renovarlo, lo hace UNA sola vez aunque varias peticiones lo pidan a la vez. */
+  const jwtExp = t => { try{ return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).exp * 1000; }catch(e){ return 0; } };
+  const sessionStore = () => {
+    for(const st of [sessionStorage, localStorage]){ try{ const s = JSON.parse(st.getItem('fastec_session') || 'null'); if(s && s.exp > Date.now()) return st; }catch(e){} }
+    return null;
+  };
+  let refreshing = null;
+  window.fastecToken = async function(){
+    const C = window.FASTEC_CONFIG || {}, st = sessionStore();
+    if(!st) throw new Error('Sesión cerrada');
+    const ses = JSON.parse(st.getItem('fastec_session'));
+    if(ses.at && jwtExp(ses.at) > Date.now() + 60000) return ses.at;
+    if(!refreshing) refreshing = (async () => {
+      const r = ses.rt && await fetch(C.supabaseUrl + '/auth/v1/token?grant_type=refresh_token', {method:'POST', headers:{apikey:C.supabaseAnonKey, 'Content-Type':'application/json'}, body: JSON.stringify({refresh_token: ses.rt})});
+      if(!r || !r.ok){ fastecClearSession(); location.replace('login.html'); throw new Error('Sesión expirada'); }
+      const j = await r.json(), cur = JSON.parse(st.getItem('fastec_session') || '{}');
+      cur.at = j.access_token; cur.rt = j.refresh_token; st.setItem('fastec_session', JSON.stringify(cur));
+      return cur.at;
+    })().finally(() => { refreshing = null; });
+    return refreshing;
+  };
+  /* Pregunta a Supabase si la cuenta es administradora (la tabla "admins" solo devuelve su propia fila) y
+     corrige el rol guardado en el navegador. Devuelve 'admin' o 'user'; lanza error si no pudo comprobarlo. */
+  window.fastecVerifyRole = async function(){
+    const C = window.FASTEC_CONFIG || {}, t = await fastecToken();
+    const r = await fetch(C.supabaseUrl + '/rest/v1/admins?select=user_id', {headers:{apikey:C.supabaseAnonKey, Authorization:'Bearer ' + t}});
+    if(!r.ok) throw new Error('No se pudo verificar el rol (' + r.status + ')');
+    const rows = await r.json(), role = Array.isArray(rows) && rows.length ? 'admin' : 'user';
+    const st = sessionStore();
+    if(st){ const s = JSON.parse(st.getItem('fastec_session')); s.role = role; st.setItem('fastec_session', JSON.stringify(s)); }
+    return role;
+  };
+
   /* ---- datos ---- */
   window.getPublishedData = () => clone(FASTEC_DEFAULT_DATA);
   window.getSiteData = function(){

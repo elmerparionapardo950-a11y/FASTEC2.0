@@ -2847,7 +2847,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 204,
       "name": "DISCO DURO PURPLE WD 1 TERA SATA",
-      "category": "DISCOS DUROS",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Purple",
       "price": "",
       "oldPrice": "",
@@ -2861,7 +2861,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 205,
       "name": "DISCO DURO PURPLE WD 2 TERAS SATA",
-      "category": "DISCOS DUROS",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Purple",
       "price": "",
       "oldPrice": "",
@@ -2875,7 +2875,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 206,
       "name": "DISCO DURO PURPLE WD 4 TERAS SATA",
-      "category": "DISCOS DUROS",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Purple",
       "price": "",
       "oldPrice": "",
@@ -2889,7 +2889,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 207,
       "name": "DISCO DURO PURPLE WD 8 TERAS SATA",
-      "category": "DISCOS DUROS",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Purple",
       "price": "",
       "oldPrice": "",
@@ -2959,7 +2959,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 212,
       "name": "8GB SODIMM KINGSTON",
-      "category": "MEMORIA RAM",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Kington",
       "price": "",
       "oldPrice": "",
@@ -2973,7 +2973,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 213,
       "name": "4GB SODIMM KINGSTON",
-      "category": "MEMORIA RAM",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Kington",
       "price": "",
       "oldPrice": "",
@@ -2987,7 +2987,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 214,
       "name": "8GB DIMM HYPERX",
-      "category": "MEMORIA RAM",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Kington",
       "price": "",
       "oldPrice": "",
@@ -3001,7 +3001,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 215,
       "name": "CORSAIR VENGEANCE LPX DDR4 3200MHz 16GB",
-      "category": "MEMORIA RAM",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Vengeance",
       "price": "",
       "oldPrice": "",
@@ -3015,7 +3015,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 216,
       "name": "MEMORIA MICRO SD 256GB NEO LUX",
-      "category": "MEMORIAS Y ALMACENAMIENTO",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Neo Lux",
       "price": "",
       "oldPrice": "",
@@ -3029,7 +3029,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 217,
       "name": "MEMORIA MICRO SD 128GB KINGTON",
-      "category": "MEMORIAS Y ALMACENAMIENTO",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Kingston",
       "price": "",
       "oldPrice": "",
@@ -3043,7 +3043,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 218,
       "name": "MICROSDXC MEMORY CARD 64 GB KINGTON",
-      "category": "MEMORIAS Y ALMACENAMIENTO",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Kingston",
       "price": "",
       "oldPrice": "",
@@ -3057,7 +3057,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 219,
       "name": "WD GREEN NVMe SSD 250GB",
-      "category": "MEMORIAS Y ALMACENAMIENTO",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Wd Green",
       "price": "",
       "oldPrice": "",
@@ -3071,7 +3071,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 220,
       "name": "HIKSEMI SSD SATA 3.0 512GB",
-      "category": "MEMORIAS Y ALMACENAMIENTO",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Hik Semi",
       "price": "",
       "oldPrice": "",
@@ -3085,7 +3085,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 221,
       "name": "PCle 4.0 NVMe M.2 SSD 1TB",
-      "category": "MEMORIAS Y ALMACENAMIENTO",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Kington",
       "price": "",
       "oldPrice": "",
@@ -3099,7 +3099,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 222,
       "name": "PCle 4.0 NVMe M.2 SSD 500GB",
-      "category": "MEMORIAS Y ALMACENAMIENTO",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Kington",
       "price": "",
       "oldPrice": "",
@@ -3113,7 +3113,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 223,
       "name": "Dahua 128GB",
-      "category": "MEMORIAS Y ALMACENAMIENTO",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Dahua",
       "price": "",
       "oldPrice": "",
@@ -3127,7 +3127,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 224,
       "name": "WCHUDISK SSD SATA 240GB",
-      "category": "MEMORIAS Y ALMACENAMIENTO",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Wchudisk",
       "price": "",
       "oldPrice": "",
@@ -3141,7 +3141,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 225,
       "name": "HDD 1TB + CASE 2.5 EXTERNAL DISK",
-      "category": "MEMORIAS Y ALMACENAMIENTO",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Adata",
       "price": "",
       "oldPrice": "",
@@ -3155,7 +3155,7 @@ const FASTEC_DEFAULT_DATA = {
     {
       "id": 226,
       "name": "MEMORIA MICRO SD 128GB NEO LUX",
-      "category": "MEMORIAS Y ALMACENAMIENTO",
+      "category": "ALMACENAMIENTO Y MEMORIA",
       "model": "Neo Lux",
       "price": "",
       "oldPrice": "",

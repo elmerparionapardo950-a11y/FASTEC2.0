@@ -12,7 +12,14 @@
 <body class="ad-body" hidden>
 <script src="js/data.js"></script>
 <script src="js/store.js"></script>
-<script>if(!fastecIsAdmin()){ location.replace('login.html'); } else { document.body.hidden = false; }</script>
+<script src="js/config.js"></script>
+<script>
+/* El rol guardado en el navegador no basta: se confirma con Supabase antes de mostrar el panel. */
+if(!fastecIsAdmin()){ location.replace('login.html'); }
+else fastecVerifyRole()
+  .then(r => { if(r === 'admin') document.body.hidden = false; else location.replace('productos.html'); })
+  .catch(() => { document.body.hidden = false; });   // sin conexión: el panel avisa solo y la base rechaza cualquier escritura
+</script>
 
 <div class="ad-shell">
   <aside class="ad-side">
@@ -160,7 +167,6 @@
   </div>
 </div>
 
-<script src="js/config.js"></script>
 <script src="js/admin-cloud.js"></script>
 <script src="js/admin.js"></script>
 </body>

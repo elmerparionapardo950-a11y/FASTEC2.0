@@ -55,24 +55,40 @@ alter table public.home_settings enable row level security;
 alter table public.stock_movements enable row level security;
 alter table public.events enable row level security;
 
+drop policy if exists "admins: ver propio" on public.admins;
 create policy "admins: ver propio" on public.admins for select using (user_id = auth.uid());
+drop policy if exists "products: público ve activos" on public.products;
 create policy "products: público ve activos" on public.products for select using (active or public.is_admin());
+drop policy if exists "products: admin escribe" on public.products;
 create policy "products: admin escribe" on public.products for all using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "services: público ve activos" on public.services;
 create policy "services: público ve activos" on public.services for select using (active or public.is_admin());
+drop policy if exists "services: admin escribe" on public.services;
 create policy "services: admin escribe" on public.services for all using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "company: público lee" on public.company;
 create policy "company: público lee" on public.company for select using (true);
+drop policy if exists "company: admin escribe" on public.company;
 create policy "company: admin escribe" on public.company for all using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "home: público lee" on public.home_settings;
 create policy "home: público lee" on public.home_settings for select using (true);
+drop policy if exists "home: admin escribe" on public.home_settings;
 create policy "home: admin escribe" on public.home_settings for all using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "stock: solo admin" on public.stock_movements;
 create policy "stock: solo admin" on public.stock_movements for all using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "events: cualquiera registra" on public.events;
 create policy "events: cualquiera registra" on public.events for insert with check (true);
+drop policy if exists "events: admin lee" on public.events;
 create policy "events: admin lee" on public.events for select using (public.is_admin());
 
 -- ===== Imágenes (bucket público de lectura; solo admin sube) =====
 insert into storage.buckets (id, name, public) values ('productos','productos',true) on conflict do nothing;
+drop policy if exists "img: lectura pública" on storage.objects;
 create policy "img: lectura pública" on storage.objects for select using (bucket_id = 'productos');
+drop policy if exists "img: admin sube" on storage.objects;
 create policy "img: admin sube" on storage.objects for insert with check (bucket_id = 'productos' and public.is_admin());
+drop policy if exists "img: admin edita" on storage.objects;
 create policy "img: admin edita" on storage.objects for update using (bucket_id = 'productos' and public.is_admin());
+drop policy if exists "img: admin borra" on storage.objects;
 create policy "img: admin borra" on storage.objects for delete using (bucket_id = 'productos' and public.is_admin());
 
 -- ===== DATOS INICIALES: 303 productos (ninguno se elimina) =====
@@ -280,29 +296,29 @@ insert into public.products (id,name,category,brand,model,sku,price,old_price,of
 (201,'TRAVEL ADAPTER 6.1A CARGADOR USB TYPE-C','CARGADORES DE CELULAR','','','',null,null,'',false,true,'',2),
 (202,'SAMSUNG TRAVEL ADAPTER CARGADOR CABLE TYPE-C','CARGADORES DE CELULAR','','','',null,null,'',false,true,'',4),
 (203,'IPOD TRAVEL ADAPTER CARGADOR Y MICROCABLE','CARGADORES DE CELULAR','','','',null,null,'',false,true,'',6),
-(204,'DISCO DURO PURPLE WD 1 TERA SATA','DISCOS DUROS','Purple','','',null,null,'',false,true,'',0),
-(205,'DISCO DURO PURPLE WD 2 TERAS SATA','DISCOS DUROS','Purple','','',null,null,'',false,true,'',0),
-(206,'DISCO DURO PURPLE WD 4 TERAS SATA','DISCOS DUROS','Purple','','',null,null,'',false,true,'',1),
-(207,'DISCO DURO PURPLE WD 8 TERAS SATA','DISCOS DUROS','Purple','','',null,null,'',false,true,'',1),
+(204,'DISCO DURO PURPLE WD 1 TERA SATA','ALMACENAMIENTO Y MEMORIA','Purple','','',null,null,'',false,true,'',0),
+(205,'DISCO DURO PURPLE WD 2 TERAS SATA','ALMACENAMIENTO Y MEMORIA','Purple','','',null,null,'',false,true,'',0),
+(206,'DISCO DURO PURPLE WD 4 TERAS SATA','ALMACENAMIENTO Y MEMORIA','Purple','','',null,null,'',false,true,'',1),
+(207,'DISCO DURO PURPLE WD 8 TERAS SATA','ALMACENAMIENTO Y MEMORIA','Purple','','',null,null,'',false,true,'',1),
 (208,'CAJA DE GRAPAS PARA CABLE','FERRETERÍA ELÉCTRICA','','','',null,null,'',false,true,'',3),
 (209,'CANALETA 39X19X2000MM','FERRETERÍA ELÉCTRICA','','','',null,null,'',false,true,'',15),
 (210,'CANALETA 10X20X2000MM','FERRETERÍA ELÉCTRICA','','','',null,null,'',false,true,'',7),
 (211,'BOLSAS DE ACCESORIOS PARA CANALETAS','FERRETERÍA ELÉCTRICA','','','',null,null,'',false,true,'',2),
-(212,'8GB SODIMM KINGSTON','MEMORIA RAM','Kington','','',null,null,'',false,true,'',0),
-(213,'4GB SODIMM KINGSTON','MEMORIA RAM','Kington','','',null,null,'',false,true,'',2),
-(214,'8GB DIMM HYPERX','MEMORIA RAM','Kington','','',null,null,'',false,true,'',1),
-(215,'CORSAIR VENGEANCE LPX DDR4 3200MHz 16GB','MEMORIA RAM','Vengeance','','',null,null,'',false,true,'',1),
-(216,'MEMORIA MICRO SD 256GB NEO LUX','MEMORIAS Y ALMACENAMIENTO','Neo Lux','','',null,null,'',false,true,'',0),
-(217,'MEMORIA MICRO SD 128GB KINGTON','MEMORIAS Y ALMACENAMIENTO','Kingston','','',null,null,'',false,true,'',0),
-(218,'MICROSDXC MEMORY CARD 64 GB KINGTON','MEMORIAS Y ALMACENAMIENTO','Kingston','','',null,null,'',false,true,'',1),
-(219,'WD GREEN NVMe SSD 250GB','MEMORIAS Y ALMACENAMIENTO','Wd Green','','',null,null,'',false,true,'',1),
-(220,'HIKSEMI SSD SATA 3.0 512GB','MEMORIAS Y ALMACENAMIENTO','Hik Semi','','',null,null,'',false,true,'',1),
-(221,'PCle 4.0 NVMe M.2 SSD 1TB','MEMORIAS Y ALMACENAMIENTO','Kington','','',null,null,'',false,true,'',2),
-(222,'PCle 4.0 NVMe M.2 SSD 500GB','MEMORIAS Y ALMACENAMIENTO','Kington','','',null,null,'',false,true,'',0),
-(223,'Dahua 128GB','MEMORIAS Y ALMACENAMIENTO','Dahua','','',null,null,'',false,true,'',1),
-(224,'WCHUDISK SSD SATA 240GB','MEMORIAS Y ALMACENAMIENTO','Wchudisk','','',null,null,'',false,true,'',0),
-(225,'HDD 1TB + CASE 2.5 EXTERNAL DISK','MEMORIAS Y ALMACENAMIENTO','Adata','','',null,null,'',false,true,'',1),
-(226,'MEMORIA MICRO SD 128GB NEO LUX','MEMORIAS Y ALMACENAMIENTO','Neo Lux','','HK-HS-TF-D3/128G',null,null,'',false,true,'',3),
+(212,'8GB SODIMM KINGSTON','ALMACENAMIENTO Y MEMORIA','Kington','','',null,null,'',false,true,'',0),
+(213,'4GB SODIMM KINGSTON','ALMACENAMIENTO Y MEMORIA','Kington','','',null,null,'',false,true,'',2),
+(214,'8GB DIMM HYPERX','ALMACENAMIENTO Y MEMORIA','Kington','','',null,null,'',false,true,'',1),
+(215,'CORSAIR VENGEANCE LPX DDR4 3200MHz 16GB','ALMACENAMIENTO Y MEMORIA','Vengeance','','',null,null,'',false,true,'',1),
+(216,'MEMORIA MICRO SD 256GB NEO LUX','ALMACENAMIENTO Y MEMORIA','Neo Lux','','',null,null,'',false,true,'',0),
+(217,'MEMORIA MICRO SD 128GB KINGTON','ALMACENAMIENTO Y MEMORIA','Kingston','','',null,null,'',false,true,'',0),
+(218,'MICROSDXC MEMORY CARD 64 GB KINGTON','ALMACENAMIENTO Y MEMORIA','Kingston','','',null,null,'',false,true,'',1),
+(219,'WD GREEN NVMe SSD 250GB','ALMACENAMIENTO Y MEMORIA','Wd Green','','',null,null,'',false,true,'',1),
+(220,'HIKSEMI SSD SATA 3.0 512GB','ALMACENAMIENTO Y MEMORIA','Hik Semi','','',null,null,'',false,true,'',1),
+(221,'PCle 4.0 NVMe M.2 SSD 1TB','ALMACENAMIENTO Y MEMORIA','Kington','','',null,null,'',false,true,'',2),
+(222,'PCle 4.0 NVMe M.2 SSD 500GB','ALMACENAMIENTO Y MEMORIA','Kington','','',null,null,'',false,true,'',0),
+(223,'Dahua 128GB','ALMACENAMIENTO Y MEMORIA','Dahua','','',null,null,'',false,true,'',1),
+(224,'WCHUDISK SSD SATA 240GB','ALMACENAMIENTO Y MEMORIA','Wchudisk','','',null,null,'',false,true,'',0),
+(225,'HDD 1TB + CASE 2.5 EXTERNAL DISK','ALMACENAMIENTO Y MEMORIA','Adata','','',null,null,'',false,true,'',1),
+(226,'MEMORIA MICRO SD 128GB NEO LUX','ALMACENAMIENTO Y MEMORIA','Neo Lux','','HK-HS-TF-D3/128G',null,null,'',false,true,'',3),
 (227,'TP-LINK300 Mbps Router Inalámbrico','REDES','','','',null,null,'',false,true,'',1),
 (228,'Tenda Router N300 Inalámbricos','REDES','','','',null,null,'',false,true,'',3),
 (229,'TP-LINK 16 PORTS 10/100 Mbps DESKTOP SWITCH','REDES','','','',null,null,'',false,true,'',1),
@@ -408,5 +424,6 @@ grant usage, select on all sequences in schema public to anon, authenticated;
 grant execute on function public.is_admin() to anon, authenticated;
 
 -- Regla para que cada admin pueda ver su propia fila
+drop policy if exists "admins: ver propio" on public.admins;
 drop policy if exists "admins: ver propio" on public.admins;
 create policy "admins: ver propio" on public.admins for select using (user_id = auth.uid());

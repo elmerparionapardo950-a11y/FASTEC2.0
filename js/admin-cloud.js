@@ -4,20 +4,8 @@
   const C = window.FASTEC_CONFIG || {};
   const toNum = v => (v === '' || v == null || isNaN(Number(v))) ? null : Number(v);
   const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-  const jwtExp = t => { try{ return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).exp * 1000; }catch(e){ return 0; } };
-
-  async function token(){
-    let st = null; for(const s of [sessionStorage, localStorage]) if(s.getItem('fastec_session')){ st = s; break; }
-    if(!st) throw new Error('Sesión cerrada');
-    const ses = JSON.parse(st.getItem('fastec_session'));
-    if(ses.at && jwtExp(ses.at) > Date.now() + 60000) return ses.at;
-    const r = await fetch(C.supabaseUrl + '/auth/v1/token?grant_type=refresh_token', {method:'POST', headers:{apikey:C.supabaseAnonKey, 'Content-Type':'application/json'}, body: JSON.stringify({refresh_token: ses.rt})});
-    if(!r.ok){ fastecClearSession(); location.replace('login.html'); throw new Error('Sesión expirada'); }
-    const j = await r.json(); ses.at = j.access_token; ses.rt = j.refresh_token; st.setItem('fastec_session', JSON.stringify(ses));
-    return ses.at;
-  }
   async function req(path, opt){
-    const t = await token(), o = opt || {};
+    const t = await fastecToken(), o = opt || {};
     const r = await fetch(C.supabaseUrl + path, Object.assign({}, o, {headers: Object.assign({apikey:C.supabaseAnonKey, Authorization:'Bearer ' + t, 'Content-Type':'application/json'}, o.headers)}));
     if(!r.ok) throw new Error(r.status + ' ' + (await r.text()).slice(0, 200));
     return r.status === 204 ? null : r.json().catch(() => null);
@@ -59,7 +47,7 @@
 
   /* Sube una imagen al almacenamiento y devuelve su URL pública */
   window.fastecUploadImage = async function(blob){
-    const t = await token(), name = 'p-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7) + '.jpg';
+    const t = await fastecToken(), name = 'p-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7) + '.jpg';
     const r = await fetch(C.supabaseUrl + '/storage/v1/object/productos/' + name, {method:'POST', headers:{apikey:C.supabaseAnonKey, Authorization:'Bearer ' + t, 'Content-Type':'image/jpeg'}, body: blob});
     if(!r.ok) throw new Error('No se pudo subir la imagen (' + r.status + ')');
     return C.supabaseUrl + '/storage/v1/object/public/productos/' + name;

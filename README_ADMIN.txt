@@ -1,17 +1,18 @@
 PANEL DE ADMINISTRACIÓN FASTEC
 
-Entrar:  tudominio.com/login.html   (usuario y contraseña, como WordPress)
-La contraseña NO está escrita en ningún archivo: auth.js guarda solo su huella (hash).
-Para cambiar usuario/contraseña: abre generar-clave.html, copia la línea que genera
-y pégala en auth.js reemplazando la línea "const FASTEC_AUTH = ...". Luego borra generar-clave.html del hosting.
+Entrar:  tudominio.com/login.html  (correo y contraseña). Administradores y clientes usan el mismo formulario;
+lo que decide quién es admin es la tabla "admins" de Supabase, no un archivo del sitio.
 
-Qué puedes hacer: agregar/editar/ocultar/eliminar productos con vista previa en vivo,
-cambiar precios y stock en una tabla, editar servicios y datos de la empresa.
+CONFIGURACIÓN INICIAL (una sola vez, en Supabase > SQL Editor)
+1) Ejecuta supabase/schema.sql      (tablas, reglas de seguridad y productos; se puede volver a ejecutar sin error)
+2) Ejecuta supabase/permisos.sql    (sin esto el login no puede comprobar quién es admin)
+3) Entra a login.html > "Crear cuenta" con el correo del administrador (y confirma el correo si Supabase lo pide)
+4) Abre supabase/crear-admin.sql, pon ese correo y ejecútalo. Cierra sesión y vuelve a entrar.
+5) (Opcional) supabase/unir-almacenamiento.sql junta Discos duros, Memoria RAM y Memorias en una sola categoría en la base.
 
-Publicar: los cambios quedan como borrador en tu navegador (tú los ves en todo el sitio).
-Para que los vean los visitantes: panel > Publicar > Descargar data.js y súbelo al hosting
-reemplazando el data.js anterior.
+Qué puedes hacer: agregar/editar/ocultar/eliminar productos, cambiar precios y stock en una tabla, subir fotos,
+editar servicios y datos de la empresa. Todo se guarda directo en Supabase (no hay que subir data.js).
 
-Seguridad: sin servidor, el login protege el panel pero no es seguridad total (cualquiera
-podría saltarlo desde el navegador, aunque no podría publicar nada: solo tú subes data.js al hosting).
-Usa contraseña larga y no la compartas.
+Seguridad: el panel confirma tu rol con Supabase cada vez que se abre, y las reglas RLS impiden escribir a quien no sea admin.
+Usa una contraseña larga (en Supabase > Authentication > Policies sube el mínimo a 10) y no la compartas.
+Para quitar un admin: ver el final de supabase/crear-admin.sql.

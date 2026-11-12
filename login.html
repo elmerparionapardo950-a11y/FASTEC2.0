@@ -28,7 +28,7 @@
     </div>
     <div id="lgConfWrap" hidden>
       <label for="lgPass2">Repetir contraseña</label>
-      <input id="lgPass2" type="password" autocomplete="new-password" minlength="6">
+      <input id="lgPass2" type="password" autocomplete="new-password" minlength="8">
     </div>
     <div class="lg-row">
       <label><input type="checkbox" id="lgRemember"> Recuérdame</label>
@@ -66,9 +66,16 @@
   if(q.get('mode') === 'up') setMode('up');
   if(!C.supabaseUrl || !C.supabaseAnonKey){ showErr('<strong>Falta configurar Supabase</strong> en js/config.js.'); $('lgBtn').disabled = true; }
 
-  // si ya tiene sesión, no vuelve a pedirla
-  if(fastecIsAdmin()){ location.replace(next || 'admin.html'); return; }
-  if(fastecIsUser()){ location.replace(next || 'productos.html'); return; }
+  // si ya tiene sesión, no vuelve a pedirla; el rol se confirma en el servidor (por si lo hicieron admin después de entrar)
+  const ses = fastecSession();
+  if(ses){
+    (async () => {
+      let role = ses.role;
+      try{ role = await fastecVerifyRole(); }catch(e){}
+      location.replace(role === 'admin' ? (next || 'admin.html') : (next || 'productos.html'));
+    })();
+    return;
+  }
 
   async function api(path, opts){
     const r = await fetch(C.supabaseUrl + path, Object.assign({}, opts, {headers: Object.assign({apikey: C.supabaseAnonKey, 'Content-Type': 'application/json'}, (opts || {}).headers)}));
@@ -76,11 +83,22 @@
   }
   async function enter(email, tok){
     // ¿Es administrador? La base solo devuelve su fila si está en la tabla "admins" (regla RLS).
-    const a = await api('/rest/v1/admins?select=user_id', {headers: {Authorization: 'Bearer ' + tok.access_token}});
-    const admin = a.ok && Array.isArray(a.body) && a.body.length > 0;
+    // Si la consulta falla NO se asume "cliente": se avisa, para que un admin no entre sin permisos sin enterarse.
+    let a;
+    for(let i = 0; i < 2; i++){
+      a = await api('/rest/v1/admins?select=user_id', {headers: {Authorization: 'Bearer ' + tok.access_token}});
+      if(a.ok && Array.isArray(a.body)) break;
+      await new Promise(r => setTimeout(r, 400));
+    }
+    if(!(a.ok && Array.isArray(a.body))){
+      showErr('<strong>No pudimos verificar tu tipo de cuenta</strong> (error ' + a.status + '). Inténtalo de nuevo. Si eres administrador, revisa que se ejecutó <code>supabase/permisos.sql</code> en Supabase.');
+      return false;
+    }
+    const admin = a.body.length > 0;
     localStorage.removeItem(KEY);
     fastecSetSession(email, $('lgRemember').checked, 8, 7, {at: tok.access_token, rt: tok.refresh_token}, admin ? 'admin' : 'user');
     location.replace(admin ? (next || 'admin.html') : (next || 'productos.html'));
+    return true;
   }
 
   $('lgForm').addEventListener('submit', async e => {
@@ -88,7 +106,7 @@
     const st = state(), email = $('lgUser').value.trim(), pass = $('lgPass').value;
     if(mode === 'in' && st.until > Date.now()){ showErr('<strong>Acceso bloqueado.</strong> Inténtalo de nuevo en ' + Math.ceil((st.until - Date.now())/60000) + ' min.'); return; }
     if(!/^\S+@\S+\.\S+$/.test(email)){ showErr('<strong>Error:</strong> escribe un correo válido.'); return; }
-    if(pass.length < 6){ showErr('<strong>Error:</strong> la contraseña debe tener al menos 6 caracteres.'); return; }
+    if(pass.length < (mode === 'up' ? 8 : 6)){ showErr('<strong>Error:</strong> la contraseña debe tener al menos ' + (mode === 'up' ? 8 : 6) + ' caracteres.'); return; }
     if(mode === 'up' && pass !== $('lgPass2').value){ showErr('<strong>Error:</strong> las contraseñas no coinciden.'); return; }
     $('lgBtn').disabled = true; hide();
     try{
@@ -98,7 +116,8 @@
           const m = String(r.body.msg || r.body.error_description || r.body.message || '').toLowerCase();
           showErr(m.includes('already') || m.includes('registered') ? 'Ese correo ya tiene una cuenta. Usa <strong>Ingresar</strong>.'
             : r.status === 429 ? 'Demasiados intentos. Espera unos minutos.' : '<strong>No se pudo crear la cuenta.</strong> Revisa los datos e inténtalo de nuevo.');
-        } else if(r.body.access_token){ await enter(email, r.body); return; }   // sin confirmación por correo: entra directo
+        } else if(r.body.access_token){ if(await enter(email, r.body)) return; }   // sin confirmación por correo: entra directo
+        else if(Array.isArray(r.body.identities) && r.body.identities.length === 0){ showErr('Ese correo ya tiene una cuenta. Usa <strong>Ingresar</strong>.'); }   // Supabase no da error si ya existe
         else { showOk('<strong>Cuenta creada.</strong> Te enviamos un correo para confirmarla; luego vuelve aquí y pulsa <strong>Ingresar</strong>.'); setMode('in'); $('lgOk').hidden = false; }
       } else {
         const t = await api('/auth/v1/token?grant_type=password', {method:'POST', body: JSON.stringify({email, password: pass})});
@@ -112,7 +131,7 @@
             localStorage.setItem(KEY, JSON.stringify(st));
           }
           $('lgPass').value = ''; $('lgPass').focus();
-        } else { await enter(email, t.body); return; }
+        } else { if(await enter(email, t.body)) return; }
       }
     }catch(err){ showErr('<strong>Error de conexión.</strong> Revisa tu internet e inténtalo otra vez.'); }
     setTimeout(() => $('lgBtn').disabled = false, 700);
