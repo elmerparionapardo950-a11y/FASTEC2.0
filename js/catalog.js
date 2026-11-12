@@ -7,6 +7,7 @@ fastecReady(function(){
   const PREVIEW = 8, PAGE = 24;
 
   function openWhatsApp(name){
+    if(window.fastecRequireLogin && !fastecRequireLogin('whatsapp')) return;
     const msg = `Hola, quiero consultar por este producto: ${name}`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
   }

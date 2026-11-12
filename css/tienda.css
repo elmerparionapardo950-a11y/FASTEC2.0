@@ -34,3 +34,17 @@
   .cart-item{ grid-template-columns:60px 1fr 32px; } .cart-photo{ width:60px; height:60px; }
   .cart-qty{ grid-column:2; } .cart-sub{ grid-column:2; text-align:left; } .cart-rm{ grid-column:3; grid-row:1; }
 }
+
+/* ===== Cuenta en el encabezado ===== */
+.acct{ position:relative; margin-right:6px; }
+.acct-btn{ display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border:1.5px solid rgba(255,255,255,.7); border-radius:22px; background:transparent; color:#fff; font:600 14px Inter,sans-serif; text-decoration:none; cursor:pointer; transition:background .2s,color .2s; }
+.acct-btn:hover{ background:#fff; color:#0b3a8f; }
+.acct-user{ padding:4px 12px 4px 4px; }
+.acct-dot{ display:inline-flex; width:28px; height:28px; border-radius:50%; background:var(--t-amber); color:#1b1b1b; align-items:center; justify-content:center; font-weight:700; }
+.acct-name{ max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.acct-menu{ position:absolute; right:0; top:calc(100% + 8px); z-index:50; min-width:230px; padding:8px; border-radius:12px; background:#fff; color:#1d2327; box-shadow:0 10px 30px rgba(0,0,0,.25); display:flex; flex-direction:column; }
+.acct-menu[hidden]{ display:none; }
+.acct-menu small{ padding:8px 10px; color:#646970; border-bottom:1px solid var(--t-line); margin-bottom:4px; word-break:break-all; }
+.acct-menu a,.acct-menu button{ padding:10px; border:0; background:none; border-radius:8px; color:inherit; font:500 14px Inter,sans-serif; text-align:left; text-decoration:none; cursor:pointer; }
+.acct-menu a:hover,.acct-menu button:hover{ background:#eef6f2; }
+@media (max-width:760px){ .acct-name{ display:none; } .acct-user{ padding:4px; } .acct-btn{ padding:7px 12px; } }

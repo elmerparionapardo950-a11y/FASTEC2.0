@@ -23,10 +23,9 @@
       <button data-view="prices">💲 Precios</button>
       <button data-view="services">🛠 Servicios</button>
       <button data-view="company">🏢 Empresa</button>
-      <button data-view="publish">🚀 Publicar</button>
+      <button data-view="publish">💾 Respaldo</button>
     </nav>
     <div class="ad-side-foot">
-      <a href="productos.html" target="_blank" rel="noopener">👁 Ver el sitio</a>
       <button id="logoutBtn">⎋ Cerrar sesión</button>
     </div>
   </aside>
@@ -36,7 +35,7 @@
       <span>Hola, <b id="hello"></b></span>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <span id="statePill" class="ad-pill"></span>
-        <button class="ad-btn" data-goto="publish">Publicar cambios</button>
+        <a class="ad-btn" href="productos.html" target="_blank" rel="noopener">Ver en la tienda ↗</a>
       </div>
     </div>
 
@@ -45,13 +44,13 @@
       <h1>Escritorio</h1><p class="ad-lead">Resumen de tu catálogo.</p>
       <div class="ad-cards" id="stats"></div>
       <div class="ad-box">
-        <h2>¿Cómo se publican los cambios?</h2>
-        <p style="margin:0;font-size:14px;color:#646970">Todo lo que cambies aquí se guarda como <b>borrador</b> en este navegador. Tú lo ves en todo el sitio, pero los visitantes aún no.</p>
-        <ol>
-          <li>Agrega o edita productos y precios.</li>
-          <li>Revisa cómo se ve navegando el sitio (verás una barra verde de vista previa).</li>
-          <li>Ve a <b>Publicar</b>, descarga <code>data.js</code> y súbelo a tu hosting reemplazando el anterior.</li>
-        </ol>
+        <h2>Completa tu tienda</h2>
+        <p class="ad-hint">Los cambios se guardan solos y se ven al instante en la tienda.</p>
+        <div class="ad-quick">
+          <button class="ad-btn" data-goto="prices">💲 Completar precios</button>
+          <button class="ad-btn ad-btn-ghost" id="goImgs">📷 Agregar fotos</button>
+          <button class="ad-btn ad-btn-ghost" id="goNew">+ Nuevo producto</button>
+        </div>
       </div>
     </section>
 
@@ -61,6 +60,7 @@
       <div class="ad-tools">
         <input type="search" id="pSearch" placeholder="Buscar por nombre, modelo o categoría…">
         <select id="pCat"></select>
+        <label class="ad-check"><input type="checkbox" id="pNoImg"> Solo sin foto</label>
         <button class="ad-btn grow" id="newProduct">+ Añadir producto</button>
       </div>
       <div class="ad-list" id="pList"></div>
@@ -103,20 +103,14 @@
 
     <!-- PUBLICAR -->
     <section class="ad-view" id="v-publish" hidden>
-      <h1>Publicar</h1><p class="ad-lead">Lleva tus cambios al sitio real.</p>
+      <h1>Respaldo</h1><p class="ad-lead">Descarga una copia de seguridad de tus productos, servicios y datos de empresa.</p>
       <div class="ad-box">
-        <h2>1. Descargar data.js</h2>
-        <p id="pubInfo" style="font-size:14px;color:#646970;margin:0 0 12px"></p>
-        <button class="ad-btn" id="pubBtn">⬇ Descargar data.js</button>
-      </div>
-      <div class="ad-box">
-        <h2>Respaldo y borrador</h2>
+        <h2>Copia de seguridad</h2>
         <div class="ad-tools" style="margin:0">
           <button class="ad-btn ad-btn-ghost" id="exportBtn">Exportar respaldo (.json)</button>
           <label class="ad-btn ad-btn-ghost" style="cursor:pointer">Importar respaldo<input id="importFile" type="file" accept=".json" hidden></label>
-          <button class="ad-btn ad-btn-danger" id="discardBtn">Descartar borrador</button>
         </div>
-        <p style="font-size:13px;color:#646970;margin:12px 0 0">“Descartar borrador” vuelve a los datos publicados actualmente en el sitio.</p>
+        <p style="font-size:13px;color:#646970;margin:12px 0 0">Importar un respaldo reemplaza los datos actuales y se guarda de inmediato en la tienda.</p>
       </div>
     </section>
   </div>

@@ -2,7 +2,6 @@
    - Visitantes: ven siempre lo publicado en data.js.
    - Con sesión iniciada: ve su borrador en todo el sitio. */
 (function(){
-  const DRAFT_KEY = 'fastec_draft';
   const clone = o => JSON.parse(JSON.stringify(o));
 
   window.fastecEsc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
@@ -10,13 +9,14 @@
   /* ---- sesión ---- */
   window.fastecIsAdmin = function(){
     for(const st of [sessionStorage, localStorage]){
-      try{ const s = JSON.parse(st.getItem('fastec_session') || 'null'); if(s && s.exp > Date.now()) return true; }catch(e){}
+      try{ const s = JSON.parse(st.getItem('fastec_session') || 'null'); if(s && s.exp > Date.now() && s.role === 'admin') return true; }catch(e){}
     }
     return false;
   };
-  window.fastecSetSession = function(user, remember, hours, days, tokens){
+  window.fastecIsUser = () => !!window.fastecSession();   // cualquier persona con sesión (cliente o admin)
+  window.fastecSetSession = function(user, remember, hours, days, tokens, role){
     const exp = Date.now() + (remember ? days*24 : hours) * 3600000;
-    (remember ? localStorage : sessionStorage).setItem('fastec_session', JSON.stringify({u:user, exp, at:tokens&&tokens.at, rt:tokens&&tokens.rt}));
+    (remember ? localStorage : sessionStorage).setItem('fastec_session', JSON.stringify({u:user, exp, at:tokens&&tokens.at, rt:tokens&&tokens.rt, role:role || 'user'}));
   };
   window.fastecSession = function(){
     for(const st of [sessionStorage, localStorage]){ try{ const s = JSON.parse(st.getItem('fastec_session')||'null'); if(s && s.exp > Date.now()) return s; }catch(e){} }
@@ -31,18 +31,8 @@
   window.getSiteData = function(){
     const pub = window.__FASTEC_REMOTE ? clone(window.__FASTEC_REMOTE) : clone(FASTEC_DEFAULT_DATA);
     if(fastecIsAdmin() && window.__FASTEC_ADMIN_DATA) return clone(window.__FASTEC_ADMIN_DATA);
-    if(fastecIsAdmin()){
-      try{
-        const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
-        if(d && Array.isArray(d.products)) return {products:d.products, services:d.services || pub.services, company:d.company || pub.company};
-      }catch(e){}
-    }
     return pub;
   };
-  window.saveSiteData = function(d){
-    try{ localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); return true; }catch(e){ return false; }
-  };
-  window.discardDraft = () => { try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} };
 
   /* ---- precios y tarjeta de producto (la misma en la web y en la vista previa del panel) ---- */
   const num = v => { const n = Number(String(v ?? '').replace(',', '.')); return isFinite(n) ? n : 0; };
@@ -73,5 +63,4 @@
     </article>`;
   };
 
-  if(fastecIsAdmin()){ const s = document.createElement('script'); s.src = 'js/admin-bar.js'; document.head.appendChild(s); }
 })();

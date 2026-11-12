@@ -43,6 +43,7 @@ fastecReady(function(){
   }
   if(fr) fr.addEventListener('click', e => {
     const c = e.target.closest('.live-product-card'); if(!c || e.target.closest('button')) return;
+    if(!fastecRequireLogin('whatsapp')) return;
     window.open(`https://wa.me/${fastecCart.waNumber()}?text=${encodeURIComponent('Hola, FASTEC. Quisiera consultar por: ' + (c.dataset.productName || ''))}`, '_blank', 'noopener');
   });
   const draw = () => { drawCart(); drawFav(); };

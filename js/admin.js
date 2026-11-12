@@ -21,7 +21,7 @@ fastecCloudLoad().then(function(){
   function show(view){
     document.querySelectorAll('.ad-view').forEach(s => s.hidden = s.id !== 'v-' + view);
     document.querySelectorAll('#adNav button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
-    if(view === 'publish') pubInfo();
+    if(view === 'publish') 
     scrollTo(0, 0);
   }
   document.querySelectorAll('#adNav button').forEach(b => b.onclick = () => show(b.dataset.view));
@@ -49,11 +49,11 @@ fastecCloudLoad().then(function(){
 
   /* ---------- lista de productos ---------- */
   function renderProducts(){
-    const list = filt($('pSearch').value, $('pCat').value);
+    const list = filt($('pSearch').value, $('pCat').value).filter(p => !$('pNoImg').checked || !p.image);
     $('pList').innerHTML = list.length ? list.map(p => {
       const vis = p.active !== false, pr = money(p.price);
       return `<div class="ad-row ${vis ? '' : 'off'}" data-id="${p.id}">
-        <div class="ad-thumb">${p.image ? `<img src="${esc(p.image)}" alt="">` : 'FASTEC'}</div>
+        <label class="ad-thumb up" title="Subir o cambiar foto">${p.image ? `<img src="${esc(p.image)}" alt="" loading="lazy">` : '<small>Sin foto</small>'}<i class="ad-cam">📷</i><input type="file" accept="image/*" data-up hidden></label>
         <div><h3>${esc(p.name)}${vis ? '' : '<span class="ad-tag off">OCULTO</span>'}${p.featured ? '<span class="ad-tag">★ Destacado</span>' : ''}</h3>
           <p>${esc(p.category)} · ${esc(p.model)} · Stock: ${p.stock === '' || p.stock == null ? '—' : esc(p.stock)}</p></div>
         <div class="ad-price ${pr ? '' : 'none'}">${pr || 'Sin precio'}</div>
@@ -71,7 +71,7 @@ fastecCloudLoad().then(function(){
       data.products = data.products.filter(x => x.id !== id); save(); fillCats(); renderProducts(); renderPrices(); toast('Producto eliminado');
     }
   });
-  ['pSearch', 'pCat'].forEach(id => $(id).addEventListener('input', renderProducts));
+  ['pSearch', 'pCat', 'pNoImg'].forEach(id => $(id).addEventListener('input', renderProducts));
 
   /* ---------- tabla de precios ---------- */
   function renderPrices(){
@@ -144,6 +144,19 @@ fastecCloudLoad().then(function(){
     save(); fillCats(); renderProducts(); renderPrices(); pm.hidden = true; toast('Producto guardado');
   });
 
+  /* subida rápida: clic en la miniatura -> elegir foto -> se guarda sola */
+  $('pList').addEventListener('change', async e => {
+    const inp = e.target.closest('[data-up]'); if(!inp || !inp.files[0]) return;
+    const id = Number(inp.closest('.ad-row').dataset.id), p = data.products.find(x => x.id === id); if(!p) return;
+    try{
+      toast('Subiendo foto…');
+      p.image = await fastecUploadImage(await (await fetch(await resize(inp.files[0]))).blob());
+      save(); renderProducts(); renderPrices(); toast('Foto guardada');
+    }catch(err){ alert('No se pudo subir la foto: ' + err.message); }
+  });
+  $('goImgs').onclick = () => { $('pNoImg').checked = true; show('products'); renderProducts(); };
+  $('goNew').onclick = () => { show('products'); openProduct(); };
+
   /* ---------- servicios ---------- */
   const sm = $('sModal'), sf = $('sForm');
   function renderServices(){
@@ -192,22 +205,17 @@ fastecCloudLoad().then(function(){
   function download(name, text, type){
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], {type})); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 500);
   }
-  function pubInfo(){ $('pubInfo').innerHTML = 'Los cambios se guardan solos en Supabase y se ven al instante en la tienda. Ya no hace falta descargar ni subir <code>data.js</code>.'; $('pubBtn').hidden = true; }
-  $('pubBtn').onclick = () => {
-    download('data.js', `// FASTEC - datos publicados del sitio. Generado desde el panel el ${new Date().toLocaleString('es-PE')}\nconst FASTEC_DEFAULT_DATA = ${JSON.stringify(data, null, 2)};\n`, 'text/javascript');
-    toast('data.js descargado: súbelo a tu hosting');
-  };
   $('exportBtn').onclick = () => download('fastec-respaldo.json', JSON.stringify(data, null, 2), 'application/json');
   $('importFile').onchange = e => {
     const file = e.target.files[0]; if(!file) return; const r = new FileReader();
     r.onload = () => { try{
       const d = JSON.parse(r.result); if(!Array.isArray(d.products)) throw 0;
+      if(!confirm('Se reemplazarán los datos actuales de la tienda por los del respaldo. ¿Continuar?')) return;
       data = { products: d.products, services: Array.isArray(d.services) ? d.services : published.services, company: d.company || published.company };
       save(); initAll(); toast('Respaldo importado');
     }catch(err){ alert('El archivo no tiene un formato válido.'); } };
     r.readAsText(file); e.target.value = '';
   };
-  $('discardBtn').onclick = () => { if(confirm('Se perderán los cambios sin publicar y volverás a lo publicado. ¿Continuar?')){ discardDraft(); location.reload(); } };
 
   function initAll(){ fillCats(); renderProducts(); renderPrices(); renderServices(); stats(); status();
     Object.entries(data.company || {}).forEach(([k, v]) => { if(cf.elements[k]) cf.elements[k].value = v; }); }
